@@ -1,0 +1,47 @@
+<html>
+<head>
+	<script type = "text/javascript">
+		javascript:window.history.forward(1);
+	</script>
+</head>
+<body>	
+<?php
+	session_start();
+	include("class_lib.php");
+			
+	$uname = $_POST['uname'];
+	$pwd = $_POST['password'];
+	$_SESSION['user']=$uname;
+
+	//print_r($_POST);
+
+	$login="login";
+	$id="*";
+	$cond="username='".$uname."'";
+	$db= new Database();
+	$db->connectdb();
+	
+	$uid=$db->selectdb($login,$id,$cond);
+	//print_r($uid['0']);
+	//echo $uid;
+	$_SESSION['id']=$uid['0'];
+	
+	if ($db->logincheck($uname,$pwd))
+	
+	{
+		if($uid['type']=='e')		
+			header("location:userhome.php");
+		else
+			header("location:adminhome.php");
+	}
+	else
+	{
+		$msg="err";
+		session_destroy();			
+		header("location:index.php?msg=".$msg);
+	}
+
+?>
+
+</body>
+</html>

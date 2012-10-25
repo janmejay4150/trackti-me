@@ -1,0 +1,23 @@
+<?php
+	session_start();
+	if(!isset($_SESSION['user']))
+		header('location:index.php');
+	else
+	{
+		include("class_lib.php");
+		
+		$cid=$_POST['keyword'];
+		
+		$db= new Database();
+		$db->connectdb();
+
+		$table="client_info";
+		$parameters="name,address,city,state,postal_code,phone,fax,email,website";	
+		$where= "status=1 and cid=".$cid;
+		$query=$db->selectdb($table,$parameters,$where);
+		$pid=$query['pid'];
+
+		//echo $query['name']."`".$query['project_details'];
+	}
+
+?>

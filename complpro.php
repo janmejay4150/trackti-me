@@ -1,0 +1,34 @@
+<?php
+session_start();
+	if(!isset($_SESSION['adminuser']))
+		header('location:index.php');
+	else
+	{
+		include("class_lib.php");
+		
+		$pid=$_POST['project'];
+
+		$db= new Database();
+		$db->connectdb();
+		
+		$status=0;
+
+		$table="projects";
+		$db_update=array("status"=>$status);
+		$where="pid=".$pid;
+
+		$update=$db->updatedb($table,$db_update,$where);
+
+		if($update==1)
+		{
+			$msg1="ok";
+			header("location:manageprojects.php?msg1=".$msg1);
+		}
+		else
+		{
+			$msg1="err";
+			header("location:manageprojects.php?msg1=".$msg1);
+		}
+
+	}
+?>

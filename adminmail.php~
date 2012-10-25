@@ -1,0 +1,41 @@
+<?php
+	session_start();
+	if(!isset($_SESSION['user']))
+	header('location:index.php');
+else
+{
+	$to = "swateek.jena@ajatus.co.in";
+	if($_POST['subject']== "" || $_POST['email']== "" || $_POST['message'] == "")
+	{
+		$msg="na";
+		header("location:adminhome.php?msg=".$msg);
+	}
+	else
+	{
+		$subject = $_POST['subject'];
+		$message = "From: ".$_POST['email']."<br />".$_POST['message'];
+		$headers  = 'MIME-Version: 1.0' . "\r\n";
+		$headers .= 'Content-type:text/html;charset=iso-8859-1' . "\r\n";
+		$headers .= 'From: '.$_POST['email']."\r\n" .
+		'Reply-To: swateek.jena@ajatus.co.in'."\r\n" ."<br />".
+		'X-Mailer: PHP/' . phpversion();
+		$replyto = $_POST['email'];
+		$replysubject = "Thank You for contacting us";
+		$replymessage = "Your feedback is important to us and we'll get back to you shortly. Thank you for your patience."."<br /><br /><br />"."Regards,"."<br />"."The Timekeepers";
+		$replyheaders  = 'MIME-Version: 1.0' . "\r\n";
+		$replyheaders .= 'Content-type:text/html;charset=iso-8859-1' . "\r\n";
+		$replyheaders .= 'From: TimeKeepers'."\r\n" .'X-Mailer: PHP/' . phpversion();
+		if(mail($to, $subject, $message,$headers) && mail($replyto, $replysubject, $replymessage,$replyheaders))
+		{
+			$msg="ok";
+			header("location:adminhome.php?msg=".$msg);
+		}
+		else
+		{
+			$msg="Server Error";
+			header("location:adminhome.php?msg=".$msg);
+		}
+	}	
+}
+
+?>

@@ -1,0 +1,92 @@
+<?php
+# Logging in with Google accounts requires setting special identity, so this example shows how to do it.
+require 'openid.php';
+include("class_lib.php");
+
+$appid=$_POST['appid'];
+
+$db=new Database();
+$db->connectdb();
+
+$table="customer";
+$parameters="ttdomain";
+$where="status=1 AND appid='".$appid."'";
+
+$query=$db->selectdb($table,$parameters,$where);
+
+$domain=$query['ttdomain'];
+
+try {
+    # Change 'localhost' to your domain name.
+    $openid = new LightOpenID($domain);
+    if(!$openid->mode) {
+        if(isset($_GET['login'])) {
+            $openid->identity = "https://www.google.com/accounts/o8/site-xrds?hd=".$appid;
+	    $openid->required = array('namePerson/friendly', 'contact/email','picture');
+            header('Location: ' . $openid->authUrl());
+        }
+?>
+<html>
+<head></head>
+<body>
+<form action="?login" method="post">
+    <input type="submit" value="Login with Ajatus ID"/>
+</form>
+<?php
+    } elseif($openid->mode == 'cancel') {
+        echo 'User has canceled authentication!';
+    } else {
+
+		session_start();		
+
+		unset($_SESSION['adminuser']);
+		unset($_SESSION['user']);
+		unset($_SESSION['id']);
+
+        
+		$attr=$openid->getAttributes('contact/email');
+		$email=$attr['contact/email'];
+	
+		$login="login";
+		$id="*";
+		$cond="email='".$email."'";
+
+		$db= new Database();
+		$db->connectdb();
+
+		$result=$db->selectdb($login,$id,$cond);
+		$_SESSION['id']=$result['id'];
+
+		$uname=$result['username'];
+		$pwd=$result['password'];
+		
+		if ($db->logincheck($uname,$pwd))
+
+		{
+			if($result['type']=='e')
+			{
+				$_SESSION['user']=$result['username'];
+				$user="Location:http://".$domain."/userdash.php";
+				header($user);
+			}
+			else
+			{
+				$_SESSION['adminuser']=$result['username'];
+				$admin="Location:http://".$domain."/admindash.php";
+				header($admin);
+			}
+		}
+		else
+		{
+			$msg="err";
+			session_destroy();			
+			header("location:index.php?msg=".$msg);
+		}
+	
+    }
+} catch(ErrorException $e) {
+    echo $e->getMessage();
+}
+?>
+</body>
+</html>

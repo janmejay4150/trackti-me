@@ -1,0 +1,3 @@
+sudo chmod -R 777 /var/www/timesheet/abc.php
+sudo php /var/www/timesheet/abc.php
+sudo chmod -R 000 /var/www/timesheet/abc.php

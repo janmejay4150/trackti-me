@@ -1,0 +1,86 @@
+<?php
+	session_start();
+	if(!isset($_SESSION['user']))
+		header('location:index.php');
+	else
+	{
+		include("class_lib.php");
+	
+		$db= new Database();
+		$db->connectdb();
+	
+		$cid = $_POST['clientdetail'];
+		$project=$_POST['project'];
+		$projdetail = $_POST['pdetails'];
+		$cname = $_POST['cname'];
+		$caddr = $_POST['caddress'];
+		$city = $_POST['city'];
+		$state = $_POST['state'];
+		$pcode = $_POST['postcode'];
+		$phone = $_POST['cph'];
+		$fax = $_POST['fax'];
+		$cmail = $_POST['cmail'];
+		$website = $_POST['wsite'];
+
+       if($cid==0)
+       {
+            echo "@1";  
+			$check=$db->selectdb("client_info","cid","phone='$phone' OR email='$cmail'"); 
+
+		
+			if($check[0] > 0)  
+			{
+				echo "@2"; 
+				$msg4="err";
+				header("location:projects.php?msg5=".$msg4);
+				die();
+		    }
+		    else
+		    { 
+				echo "@3"; 
+		    	$table1="client_info";
+				$dbinsert1=array("name"=>$cname,"address"=>$caddr,"city"=>$city,"state"=>$state,"postal_code"=>$pcode,"phone"=>$phone,"fax"=>$fax,"email"=>$cmail,"website"=>$website); 
+				$insert1 = $db->insertdb($table1,$dbinsert1);
+				$where2 = "phone = $phone AND status = 1";
+				$parameters2 = "cid";
+				$selectcid = $db->selectdb($table1,$parameters2,$where2);
+			}
+		}
+		else
+		{
+			echo "@4";
+			$selectcid=array();
+			$selectcid['cid']=$cid;    
+			
+		}
+		
+		echo "@5";
+		
+ 
+		$table="projects";
+		$dbinsert=array("name" =>$project,"project_details"=>$projdetail);
+				
+		$insert=$db->insertdb($table,$dbinsert);
+		$where1 = "name = '$project' AND status = 1";
+	
+		$parameters1 = "pid";
+					
+		$selectpid = $db->selectdb($table,$parameters1,$where1);
+	
+		$table3 =  "client_project";
+		$parameters3 = array("pid" => $selectpid['pid'],"cid" => $selectcid['cid']);
+		$ins_clntproj = $db->insertdb($table3,$parameters3);
+	
+		if($insert==1 || $insert1==1)
+		{
+			$msg2="ok";
+			header("location:projects.php?msg2=".$msg2);
+		}
+		else
+		{
+			$msg2="err";
+			header("location:projects.php?msg2=".$msg2);
+		}
+	}
+
+?>
